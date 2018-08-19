@@ -1,2 +1,2 @@
 ﻿  Board.cpp
-c:\users\oem\documents\github\tic-tac-toe\tic tac toe\tic tac toe\board.cpp(208): error C4700: uninitialized local variable 'score' used
+  Tic Tac Toe.vcxproj -> C:\Users\OEM\Documents\GitHub\Tic-Tac-Toe\Tic Tac Toe\Debug\Tic Tac Toe.exe

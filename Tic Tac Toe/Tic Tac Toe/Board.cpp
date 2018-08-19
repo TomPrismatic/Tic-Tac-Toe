@@ -62,6 +62,7 @@ void Board::generateMenu()
 		system("CLS");
 		//Sets the game to hard
 		generateBoard();
+		gamePlay();
 		return;
 	}
 }
@@ -76,8 +77,12 @@ void Board::generateBoard()
 			gameBoard[i][j] = emptySpace;
 		}
 	}
+}
 
-	//Generated the game board
+void Board::displayBoard()
+{
+	//Cout the current game board
+	//cout << "   0     1     2   \n";
 	cout << "____________________";
 	for (unsigned int i = 0; i < 3; i++)
 	{
@@ -88,9 +93,64 @@ void Board::generateBoard()
 		}
 	}
 	cout << "\n____________________\n";
+}
 
-	char playerInput;
-	cin >> playerInput;
+void Board::gamePlay()
+{
+	unsigned int currentTurn = 0;
+	bool gameOver = false;
+
+	displayBoard();
+
+	std::cout << "Enter your move in order of row, column (from 0-2) example: 02\n";
+
+	while (gameOver == false)
+	{
+		// human move
+		if (currentTurn == 0)
+		{
+			playerTurn();
+
+			//Check to see if the player has won (1 is player)
+			if (checkGameWinner() == 1)
+			{
+				cout << "Congratulations, You Win!\n";
+				char pause;
+				cin >> pause;
+				gameOver = true;
+			}
+			currentTurn = 1;
+		}
+
+		if (currentTurn == 1)
+		{
+			cout << "\nComputer Move: ";
+			std::vector<int> computerMove = minMaxAlgorithm();
+			cout << computerMove.front() << computerMove.back() << "\n";
+			gameBoard[computerMove.front()][computerMove.back()] = o;
+
+			if (checkGameWinner() == 2)
+			{
+				displayBoard();
+				std::cout << "Computer Wins\n";
+				char pause;
+				cin >> pause;
+				gameOver = true;
+			}
+			currentTurn = 2;
+		}
+
+		if (isBoardFull())
+		{
+			std::cout << "\n*** Tie ***\n";
+			char pause;
+			cin >> pause;
+			gameOver = true;
+		}
+
+		currentTurn = 0;
+		displayBoard();
+	}
 }
 
 bool Board::isBoardFull()
@@ -156,37 +216,49 @@ int Board::checkGameWinner()
 	return 0;
 }
 
+
+
 void Board::playerTurn()
 {
-	bool fail = true;
-	unsigned int playerMovementX = -1, playerMovementY = -1;
+	//Bool to see if the player is still placing their x
+	bool stillToPlace = true;
+	//X and Y position the player will place their x at
+	unsigned int playerMovementX = 0, playerMovementY = 0;
 
-	while (fail == true)
+	while (stillToPlace == true)
 	{
-		std::cout << "Please enter where you wish to place your x: ";
+		//Prints the message too the screen
+		cout << "Please enter where you wish to place your cross (X Coordinate Y Coodinate): ";
 
-		char playerInputX;
-		std::cin >> playerInputX;
-		playerMovementX = playerInputX - '0';
-
+		//Gets player input for Y position
 		char playerInputY;
-		std::cin >> playerInputY;
+		cin >> playerInputY;
 		playerMovementY = playerInputY - '0';
 
-		fail = gameBoard[playerMovementX][playerMovementY] != emptySpace;
+		//Gets player input for X position
+		char playerInputX;
+		cin >> playerInputX;
+		playerMovementX = playerInputX - '0';
 
+		
+
+		//If the place is already taken the player must try again
+		stillToPlace = gameBoard[playerMovementX][playerMovementY] != emptySpace;
+
+		//Clears screen
 		cin.clear();
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
 	}
-
+	//Places player cross
 	gameBoard[playerMovementX][playerMovementY] = x;
 }
 
 std::vector<int> Board::minMaxAlgorithm()
 {
 	//Creates a int Score which will be used to calculate the best move
-	int score;
+	//Score is set to the largest number possible
+	int score = numeric_limits<int>::max();
 	//Creates a 2D vector which will hold the coordinates for the ai's move
 	std::vector<int> correctMove = {0, 0};
 
@@ -242,7 +314,8 @@ int Board::maximise()
 	}
 
 	//otherwise score is the variable we will be returning
-	int score;
+	//Score is set too the smallest possible number
+	int score = numeric_limits<int>::min();
 	
 	//Iterate through the board
 	for (unsigned int i = 0; i < 3; i++)
@@ -286,7 +359,8 @@ int Board::minimise()
 	}
 
 	//otherwise score is the variable we will be returning
-	int score;
+	//Score is set to the largest number possible
+	int score = numeric_limits<int>::max();
 
 	//Iterate through the board
 	for (unsigned int i = 0; i < 3; i++)

@@ -11,6 +11,12 @@ public:
 	void generateMenu();
 	void generateBoard();
 
+	//Cout the current Board State
+	void displayBoard();
+
+	//Game loop
+	void gamePlay();
+
 	//Checks to see if the game is won or tied
 	bool isBoardFull();
 	int checkGameWinner();
