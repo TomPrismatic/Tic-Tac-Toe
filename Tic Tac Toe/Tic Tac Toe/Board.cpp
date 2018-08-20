@@ -175,8 +175,8 @@ std::vector<int> Board::easyRandomPlacement()
 {
 	//Create a vector to store the random move (X, Y)
 	std::vector<int> randomMove = { 0, 0 };
-	int randomXValue = (rand() % 3) - 1;
-	int randomYValue = (rand() % 3) - 1;
+	int randomXValue = (rand() % 3);
+	int randomYValue = (rand() % 3);
 	//Assign the random X and Y coordinates too the vector
 	if (gameBoard[randomXValue][randomYValue] == emptySpace)
 	{
@@ -364,7 +364,7 @@ void Board::player2Turn()
 	while (stillToPlace == true)
 	{
 		//Prints the message too the screen
-		cout << "Please enter where you wish to place your cross (X Coordinate Y Coodinate): ";
+		cout << "Please enter where you wish to place your circle (X Coordinate Y Coodinate): ";
 
 		//Gets player input for Y position
 		char playerInputY;
