@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <limits>
 #include <vector>
+#include <random>
 
 using namespace std;
 
@@ -41,6 +42,10 @@ void Board::generateMenu()
 	cout << "||       Or if you want        ||" << endl;
 	cout << "||      a real challenge       ||" << endl;
 	cout << "||          TYPE H...          ||" << endl;
+	cout << "||                             ||" << endl;
+	cout << "||   Or if you wish to play    ||" << endl;
+	cout << "||   agaist another player,    ||" << endl;
+	cout << "||           TYPE P            ||" << endl;
 	cout << "||_____________________________||" << endl;
 
 	//Gets player input for difficulty
@@ -53,6 +58,7 @@ void Board::generateMenu()
 		system("CLS");
 		//sets the game to easy
 		generateBoard();
+		gamePlayEasy();
 		return;
 	}
 
@@ -62,8 +68,19 @@ void Board::generateMenu()
 		system("CLS");
 		//Sets the game to hard
 		generateBoard();
-		gamePlay();
+		gamePlayHard();
 		return;
+	}
+
+	if (playerInput == 'P')
+	{
+		//Clears window
+		system("CLS");
+		//Sets the game to PVP
+		generateBoard();
+		gamePlayPVP();
+		return;
+
 	}
 }
 
@@ -95,14 +112,95 @@ void Board::displayBoard()
 	cout << "\n____________________\n";
 }
 
-void Board::gamePlay()
+void Board::gamePlayEasy()
 {
+	//Creates a variable for the current turn and a bool for whether the game is over or not
+	unsigned int currentTurn = 0;
+	bool gameOver = false;
+
+	displayBoard();
+	cout << "Enter your move in order of row, column (from 0-2) example: 02\n";
+
+	while (gameOver == false)
+	{
+		if (currentTurn == 0)
+		{
+			playerTurn();
+
+			//Check to see if the player has won (1 is player)
+			if (checkGameWinner() == 1)
+			{
+				displayBoard();
+				cout << "Congratulations, You Win!\n";
+				char pause;
+				cin >> pause;
+				gameOver = true;
+			}
+			currentTurn = 1;
+		}
+
+		if (currentTurn == 1)
+		{
+			//Calls the random funtion, assigns this value too randomMove
+			std::vector<int> randomMove =easyRandomPlacement();
+			cout << randomMove.front() << randomMove.back() << "\n";
+			//Places the random o
+			gameBoard[randomMove.front()][randomMove.back()] = o;
+
+			if (checkGameWinner() == 2)
+			{
+				displayBoard();
+				std::cout << "Computer Wins\n";
+				char pause;
+				cin >> pause;
+				gameOver = true;
+			}
+			currentTurn = 2;
+		}
+
+		if (isBoardFull())
+		{
+			std::cout << "\nIt's a Tie!\n";
+			char pause;
+			cin >> pause;
+			gameOver = true;
+		}
+
+		currentTurn = 0;
+		displayBoard();
+	}
+}
+
+std::vector<int> Board::easyRandomPlacement()
+{
+	//Create a vector to store the random move (X, Y)
+	std::vector<int> randomMove = { 0, 0 };
+	int randomXValue = (rand() % 3) - 1;
+	int randomYValue = (rand() % 3) - 1;
+	//Assign the random X and Y coordinates too the vector
+	if (gameBoard[randomXValue][randomYValue] == emptySpace)
+	{
+		randomMove[0] = randomXValue;
+		randomMove[1] = randomYValue;
+	}
+	else
+	{
+		randomMove = easyRandomPlacement();
+	}
+
+	//Return the vector
+	return randomMove;
+}
+
+void Board::gamePlayHard()
+{
+	//Creates a variable for the current turn and a bool for whether the game is over or not
 	unsigned int currentTurn = 0;
 	bool gameOver = false;
 
 	displayBoard();
 
-	std::cout << "Enter your move in order of row, column (from 0-2) example: 02\n";
+	cout << "Enter your move in order of row, column (from 0-2) example: 02\n";
 
 	while (gameOver == false)
 	{
@@ -114,6 +212,7 @@ void Board::gamePlay()
 			//Check to see if the player has won (1 is player)
 			if (checkGameWinner() == 1)
 			{
+				displayBoard();
 				cout << "Congratulations, You Win!\n";
 				char pause;
 				cin >> pause;
@@ -125,8 +224,11 @@ void Board::gamePlay()
 		if (currentTurn == 1)
 		{
 			cout << "\nComputer Move: ";
+			//Creates a 2D vector which the best possible score is stored in
 			std::vector<int> computerMove = minMaxAlgorithm();
+			//Takes the front element of the vector as the X value and the back element as the Y value
 			cout << computerMove.front() << computerMove.back() << "\n";
+			//Places the best possible move as an o
 			gameBoard[computerMove.front()][computerMove.back()] = o;
 
 			if (checkGameWinner() == 2)
@@ -142,7 +244,7 @@ void Board::gamePlay()
 
 		if (isBoardFull())
 		{
-			std::cout << "\n*** Tie ***\n";
+			std::cout << "\nIt's a Tie!\n";
 			char pause;
 			cin >> pause;
 			gameOver = true;
@@ -216,8 +318,6 @@ int Board::checkGameWinner()
 	return 0;
 }
 
-
-
 void Board::playerTurn()
 {
 	//Bool to see if the player is still placing their x
@@ -252,6 +352,42 @@ void Board::playerTurn()
 	}
 	//Places player cross
 	gameBoard[playerMovementX][playerMovementY] = x;
+}
+
+void Board::player2Turn()
+{
+	//Bool to see if the player is still placing their x
+	bool stillToPlace = true;
+	//X and Y position the player will place their x at
+	unsigned int playerMovementX = 0, playerMovementY = 0;
+
+	while (stillToPlace == true)
+	{
+		//Prints the message too the screen
+		cout << "Please enter where you wish to place your cross (X Coordinate Y Coodinate): ";
+
+		//Gets player input for Y position
+		char playerInputY;
+		cin >> playerInputY;
+		playerMovementY = playerInputY - '0';
+
+		//Gets player input for X position
+		char playerInputX;
+		cin >> playerInputX;
+		playerMovementX = playerInputX - '0';
+
+
+
+		//If the place is already taken the player must try again
+		stillToPlace = gameBoard[playerMovementX][playerMovementY] != emptySpace;
+
+		//Clears screen
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+	}
+	//Places player cross
+	gameBoard[playerMovementX][playerMovementY] = o;
 }
 
 std::vector<int> Board::minMaxAlgorithm()
@@ -381,4 +517,64 @@ int Board::minimise()
 	}
 
 	return score;
+}
+
+void Board::gamePlayPVP()
+{
+
+	//Creates a variable for the current turn and a bool for whether the game is over or not
+	unsigned int currentTurn = 0;
+	bool gameOver = false;
+
+	displayBoard();
+	
+
+	while (gameOver == false)
+	{
+		if (currentTurn == 0)
+		{
+			playerTurn();
+			cout << "Player 1 please enter your move in order of row, column (from 0-2) example: 02\n";
+
+			//Check to see if the player has won (1 is player)
+			if (checkGameWinner() == 1)
+			{
+				displayBoard();
+				cout << "Congratulations Player 1, You Win!\n";
+				char pause;
+				cin >> pause;
+				gameOver = true;
+			}
+			currentTurn = 1;
+		}
+
+		if (currentTurn == 1)
+		{
+			displayBoard();
+			player2Turn();
+			cout << "Player 2 please enter your move in order of row, column (from 0-2) example: 02\n";
+
+			//Check to see if the player has won (1 is player)
+			if (checkGameWinner() == 2)
+			{
+				displayBoard();
+				cout << "Congratulations Player 2, You Win!\n";
+				char pause;
+				cin >> pause;
+				gameOver = true;
+			}
+			currentTurn = 2;
+		}
+
+		if (isBoardFull())
+		{
+			std::cout << "\nIt's a Tie!\n";
+			char pause;
+			cin >> pause;
+			gameOver = true;
+		}
+
+		currentTurn = 0;
+		displayBoard();
+	}
 }

@@ -5,6 +5,7 @@ using namespace std;
 
 Board* gameBoard;
 
+//Entry Point
 int main()
 {
 	gameBoard = new Board();
