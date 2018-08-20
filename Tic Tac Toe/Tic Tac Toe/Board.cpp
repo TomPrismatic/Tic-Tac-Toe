@@ -465,6 +465,14 @@ int Board::maximise()
 				gameBoard[i][j] = x;
 				//Calls the minimise funtion, if the value returned is greater than the current score, this value is assigned to score
 				score = max(score, minimise());
+
+				//Pruining, if score is the best possible value, return
+				if (score == 10)
+				{
+					gameBoard[i][j] = emptySpace;
+					return score;
+				}
+			
 				//Return the game board to its previous state
 				gameBoard[i][j] = emptySpace;
 			}
@@ -510,6 +518,14 @@ int Board::minimise()
 				gameBoard[i][j] = o;
 				//Calls the maximise funtion, if the value returned is less than the current score, this value is assigned to score
 				score = min(score, maximise());
+
+				//Pruining, if score is the best possible value, return
+				if (score == -10)
+				{
+					gameBoard[i][j] = emptySpace;
+					return score;
+				}
+
 				//Return the game board to its previous state
 				gameBoard[i][j] = emptySpace;
 			}
@@ -566,6 +582,7 @@ void Board::gamePlayPVP()
 			currentTurn = 2;
 		}
 
+		//Check to see if board is full
 		if (isBoardFull())
 		{
 			std::cout << "\nIt's a Tie!\n";
